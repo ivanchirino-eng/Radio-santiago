@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dial Santiago — Radio en vivo</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: #0c1016;
+    color: #eee6d6;
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  header {
+    border-bottom: 1px solid #1c232f;
+    padding: 24px 20px 16px;
+    position: sticky;
+    top: 0;
+    background: rgba(12,16,22,0.95);
+    backdrop-filter: blur(6px);
+    z-index: 20;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .eyebrow { color: #f4a94b; display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; }
+  h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; margin: 6px 0 2px; letter-spacing: -0.02em; }
+  .sub { color: #7c8798; font-size: 13px; margin: 0 0 16px; line-height: 1.5; }
+  .searchBox {
+    display: flex; align-items: center; gap: 8px;
+    background: #141a24; border: 1px solid #232c3a; border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .searchBox input {
+    background: transparent; border: none; outline: none; color: #eee6d6;
+    font-family: 'JetBrains Mono', monospace; font-size: 14px; width: 100%;
+  }
+  .searchBox input::placeholder { color: #4b5566; }
+  main { flex: 1; max-width: 720px; margin: 0 auto; width: 100%; padding: 16px 20px; padding-bottom: 120px; }
+  .stateMsg { text-align: center; padding: 60px 20px; color: #5f6b7d; font-size: 14px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .card {
+    padding: 12px 14px; border-radius: 10px; border: 1px solid #1c232f; background: #12161e;
+  }
+  .card.current { background: #1a2029; border-color: rgba(244,169,75,0.5); box-shadow: 0 0 0 1px rgba(244,169,75,0.25), 0 0 24px rgba(244,169,75,0.08); }
+  .row { display: flex; align-items: center; gap: 12px; }
+  .icon {
+    flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
+    border: 1px solid #2a3341; color: #5f6b7d;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background: transparent;
+    font-size: 14px;
+  }
+  .icon.current { border-color: #f4a94b; color: #f4a94b; }
+  .info { min-width: 0; flex: 1; }
+  .info p.name { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .info p.tags { font-size: 11px; color: #5f6b7d; margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .siteLink {
+    flex-shrink: 0; font-size: 10px; color: #7c8798; text-decoration: none;
+    border: 1px solid #232c3a; padding: 6px 10px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  .siteLink:active { background: #1c232f; }
+  .badge { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; }
+  .badge.direct { background: rgba(95,234,158,0.12); color: #5fea9e; }
+  .badge.web { background: rgba(124,135,152,0.15); color: #7c8798; }
+  .errMsg { font-size: 11px; color: #e57373; margin: 6px 0 0 48px; }
+
+  #player {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: #10141b; border-top: 1px solid #1c232f;
+    padding: 12px 16px; display: none; z-index: 30;
+  }
+  #player.show { display: block; }
+  .playerRow { max-width: 720px; margin: 0 auto; display: flex; align-items: center; gap: 12px; }
+  #playBtn {
+    flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; border: none;
+    background: #f4a94b; color: #0c1016; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 16px;
+  }
+  .pInfo { min-width: 0; flex: 1; }
+  .pInfo p.name { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .pInfo p.status { font-size: 11px; color: #5f6b7d; margin: 2px 0 0; }
+  #volume { width: 70px; accent-color: #f4a94b; }
+  .spin { animation: spin 1s linear infinite; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="eyebrow">📡 EN VIVO · SANTIAGO</div>
+    <h1>Dial Santiago</h1>
+    <p class="sub">Emisoras chilenas precargadas — sin depender de conexión a un directorio externo. Toca ▶ para reproducir directo, o "web oficial" si prefieres escucharla en el sitio de la radio.</p>
+    <div class="searchBox">
+      <span>🔍</span>
+      <input id="search" placeholder="Buscar emisora (ej: Bío-Bío, Cooperativa, Duna...)" />
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="content"></div>
+</main>
+
+<div id="player">
+  <div class="playerRow">
+    <button id="playBtn">▶</button>
+    <div class="pInfo">
+      <p class="name" id="pName">—</p>
+      <p class="status" id="pStatus">—</p>
+    </div>
+    <span id="volIcon">🔊</span>
+    <input id="volume" type="range" min="0" max="1" step="0.01" value="0.85" />
+  </div>
+</div>
+
+<audio id="audio"></audio>
+
+<script>
+// Emisoras precargadas — no requieren conexión a ningún directorio externo.
+// "stream": URL de audio directo (mp3/icecast) verificada. Si no hay, se ofrece solo el sitio oficial.
+const STATIONS = [
+  { name: "Radio Bío-Bío", tags: "noticias · nacional", stream: "https://redirector.dps.live/biobiosantiago/mp3/icecast.audio", site: "https://www.biobiochile.cl" },
+  { name: "Cooperativa", tags: "noticias · actualidad", stream: null, site: "https://www.cooperativa.cl" },
+  { name: "ADN Radio", tags: "noticias · deportes", stream: null, site: "https://www.adnradio.cl" },
+  { name: "Radio Agricultura", tags: "noticias · opinión", stream: null, site: "https://www.radioagricultura.cl" },
+  { name: "Radio Concierto", tags: "rock · pop · 88.5 FM", stream: null, site: "https://www.concierto.cl" },
+  { name: "Radio Futuro", tags: "alternativa · indie", stream: null, site: "https://www.futuro.cl" },
+  { name: "Radioactiva", tags: "urbano · reggaetón", stream: null, site: "https://www.activa.cl" },
+  { name: "Los 40 Chile", tags: "pop · hits", stream: null, site: "https://los40.cl" },
+  { name: "Radio Pudahuel", tags: "romántica · baladas", stream: null, site: "https://www.pudahuel.cl" },
+  { name: "Corazón FM", tags: "romántica · pop", stream: null, site: "https://www.corazon.cl" },
+  { name: "Radio Carolina", tags: "juvenil · hits", stream: null, site: "https://www.carolina.cl" },
+  { name: "Radio Duna", tags: "pop rock · variada", stream: null, site: "https://www.duna.cl" },
+  { name: "Rock & Pop", tags: "rock · clásicos", stream: null, site: "https://www.rockandpop.cl" },
+  { name: "Radio Imagina", tags: "pop · romántica", stream: null, site: "https://www.imagina.cl" },
+  { name: "Tele13 Radio", tags: "noticias · análisis", stream: null, site: "https://www.t13.cl/radio" },
+];
+
+let query = "";
+let current = null;
+let playing = false;
+let loadingStream = false;
+let streamError = false;
+
+const audio = document.getElementById('audio');
+const content = document.getElementById('content');
+const player = document.getElementById('player');
+const playBtn = document.getElementById('playBtn');
+const pName = document.getElementById('pName');
+const pStatus = document.getElementById('pStatus');
+const volume = document.getElementById('volume');
+const volIcon = document.getElementById('volIcon');
+const searchInput = document.getElementById('search');
+
+function normalize(s) {
+  return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function getFiltered() {
+  if (!query.trim()) return STATIONS;
+  const q = normalize(query);
+  return STATIONS.filter(s => normalize(`${s.name} ${s.tags}`).includes(q));
+}
+
+function render() {
+  const filtered = getFiltered();
+  if (filtered.length === 0) {
+    content.innerHTML = `<div class="stateMsg">Sin resultados para "${query}".</div>`;
+    return;
+  }
+  const ul = document.createElement('ul');
+  filtered.forEach(s => {
+    const isCurrent = current && current.name === s.name;
+    const li = document.createElement('li');
+    const card = document.createElement('div');
+    card.className = 'card' + (isCurrent ? ' current' : '');
+
+    const iconContent = isCurrent && playing
+      ? (loadingStream ? '<span class="spin">⟳</span>' : '⏸')
+      : '▶';
+
+    card.innerHTML = `
+      <div class="row">
+        <button class="icon${isCurrent ? ' current' : ''}" data-name="${s.name}" ${!s.stream ? 'style="opacity:0.35;cursor:default;"' : ''}>${iconContent}</button>
+        <div class="info">
+          <p class="name">${s.name}</p>
+          <p class="tags">${s.tags}</p>
+        </div>
+        <span class="badge ${s.stream ? 'direct' : 'web'}">${s.stream ? 'directo' : 'sin directo'}</span>
+        <a class="siteLink" href="${s.site}" target="_blank" rel="noopener">web oficial ↗</a>
+      </div>
+      ${isCurrent && streamError ? '<p class="errMsg">No se pudo reproducir directo. Usa "web oficial" para escucharla.</p>' : ''}
+    `;
+
+    if (s.stream) {
+      card.querySelector('.icon').onclick = () => play(s);
+    }
+
+    li.appendChild(card);
+    ul.appendChild(li);
+  });
+  content.innerHTML = '';
+  content.appendChild(ul);
+}
+
+function play(station) {
+  streamError = false;
+  if (current && current.name === station.name) {
+    togglePlay();
+    return;
+  }
+  current = station;
+  loadingStream = true;
+  playing = true;
+  audio.src = station.stream;
+  audio.play().then(() => {
+    loadingStream = false;
+    render();
+    renderPlayer();
+  }).catch(() => {
+    loadingStream = false;
+    streamError = true;
+    playing = false;
+    render();
+    renderPlayer();
+  });
+  render();
+  renderPlayer();
+}
+
+function togglePlay() {
+  if (!current) return;
+  if (playing) {
+    audio.pause();
+    playing = false;
+  } else {
+    audio.play().catch(() => { streamError = true; });
+    playing = true;
+  }
+  render();
+  renderPlayer();
+}
+
+function renderPlayer() {
+  if (!current) { player.classList.remove('show'); return; }
+  player.classList.add('show');
+  pName.textContent = current.name;
+  pStatus.textContent = streamError ? 'No se pudo reproducir esta señal' : (playing ? 'transmitiendo en vivo' : 'en pausa');
+  playBtn.innerHTML = loadingStream ? '<span class="spin">⟳</span>' : (playing ? '⏸' : '▶');
+}
+
+playBtn.onclick = togglePlay;
+searchInput.oninput = (e) => { query = e.target.value; render(); };
+volume.oninput = (e) => {
+  audio.volume = parseFloat(e.target.value);
+  volIcon.textContent = audio.volume === 0 ? '🔇' : '🔊';
+};
+audio.volume = 0.85;
+audio.onwaiting = () => { loadingStream = true; renderPlayer(); };
+audio.onplaying = () => { loadingStream = false; renderPlayer(); };
+audio.onerror = () => { streamError = true; loadingStream = false; playing = false; render(); renderPlayer(); };
+
+render();
+</script>
+</body>
+</html>
