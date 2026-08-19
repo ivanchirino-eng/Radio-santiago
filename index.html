@@ -16,7 +16,6 @@
     display: flex;
     flex-direction: column;
   }
-  .font-display { font-family: 'Space Grotesk', sans-serif; }
   header {
     border-bottom: 1px solid #1c232f;
     padding: 24px 20px 16px;
@@ -29,10 +28,9 @@
   .wrap { max-width: 720px; margin: 0 auto; }
   .eyebrow { color: #f4a94b; display: flex; align-items: center; gap: 8px; font-size: 12px; letter-spacing: 0.25em; text-transform: uppercase; }
   h1 { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; margin: 6px 0 2px; letter-spacing: -0.02em; }
-  .sub { color: #7c8798; font-size: 13px; margin: 0 0 16px; }
-  .searchRow { display: flex; gap: 8px; }
+  .sub { color: #7c8798; font-size: 13px; margin: 0 0 16px; line-height: 1.5; }
   .searchBox {
-    flex: 1; display: flex; align-items: center; gap: 8px;
+    display: flex; align-items: center; gap: 8px;
     background: #141a24; border: 1px solid #232c3a; border-radius: 10px;
     padding: 10px 12px;
   }
@@ -41,32 +39,35 @@
     font-family: 'JetBrains Mono', monospace; font-size: 14px; width: 100%;
   }
   .searchBox input::placeholder { color: #4b5566; }
-  .filterBtn {
-    flex-shrink: 0; padding: 0 14px; border-radius: 10px; border: 1px solid #232c3a;
-    background: transparent; color: #7c8798; font-family: 'JetBrains Mono', monospace;
-    font-size: 12px; cursor: pointer;
-  }
-  .filterBtn.active { background: rgba(244,169,75,0.1); border-color: rgba(244,169,75,0.5); color: #f4a94b; }
-  main { flex: 1; max-width: 720px; margin: 0 auto; width: 100%; padding: 20px; padding-bottom: 120px; }
-  .stateMsg { text-align: center; padding: 80px 20px; color: #5f6b7d; font-size: 14px; }
+  main { flex: 1; max-width: 720px; margin: 0 auto; width: 100%; padding: 16px 20px; padding-bottom: 120px; }
+  .stateMsg { text-align: center; padding: 60px 20px; color: #5f6b7d; font-size: 14px; }
   ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
-  .stationBtn {
-    width: 100%; text-align: left; display: flex; align-items: center; gap: 12px;
+  .card {
     padding: 12px 14px; border-radius: 10px; border: 1px solid #1c232f; background: #12161e;
-    cursor: pointer; transition: all 0.15s;
   }
-  .stationBtn:hover { border-color: #2a3341; background: #151b24; }
-  .stationBtn.current { background: #1a2029; border-color: rgba(244,169,75,0.5); box-shadow: 0 0 0 1px rgba(244,169,75,0.25), 0 0 24px rgba(244,169,75,0.08); }
+  .card.current { background: #1a2029; border-color: rgba(244,169,75,0.5); box-shadow: 0 0 0 1px rgba(244,169,75,0.25), 0 0 24px rgba(244,169,75,0.08); }
+  .row { display: flex; align-items: center; gap: 12px; }
   .icon {
     flex-shrink: 0; width: 36px; height: 36px; border-radius: 50%;
     border: 1px solid #2a3341; color: #5f6b7d;
-    display: flex; align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    background: transparent;
+    font-size: 14px;
   }
   .icon.current { border-color: #f4a94b; color: #f4a94b; }
   .info { min-width: 0; flex: 1; }
   .info p.name { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .info p.tags { font-size: 11px; color: #5f6b7d; margin: 2px 0 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .badge { flex-shrink: 0; font-size: 10px; color: #f4a94b; text-transform: uppercase; letter-spacing: 0.05em; }
+  .siteLink {
+    flex-shrink: 0; font-size: 10px; color: #7c8798; text-decoration: none;
+    border: 1px solid #232c3a; padding: 6px 10px; border-radius: 8px;
+    white-space: nowrap;
+  }
+  .siteLink:active { background: #1c232f; }
+  .badge { font-size: 9px; text-transform: uppercase; letter-spacing: 0.05em; padding: 2px 6px; border-radius: 4px; }
+  .badge.direct { background: rgba(95,234,158,0.12); color: #5fea9e; }
+  .badge.web { background: rgba(124,135,152,0.15); color: #7c8798; }
+  .errMsg { font-size: 11px; color: #e57373; margin: 6px 0 0 48px; }
 
   #player {
     position: fixed; bottom: 0; left: 0; right: 0;
@@ -83,7 +84,7 @@
   .pInfo { min-width: 0; flex: 1; }
   .pInfo p.name { font-family: 'Space Grotesk', sans-serif; font-weight: 500; font-size: 14px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .pInfo p.status { font-size: 11px; color: #5f6b7d; margin: 2px 0 0; }
-  #volume { width: 80px; accent-color: #f4a94b; }
+  #volume { width: 70px; accent-color: #f4a94b; }
   .spin { animation: spin 1s linear infinite; display: inline-block; }
   @keyframes spin { to { transform: rotate(360deg); } }
 </style>
@@ -94,21 +95,16 @@
   <div class="wrap">
     <div class="eyebrow">📡 EN VIVO · SANTIAGO</div>
     <h1>Dial Santiago</h1>
-    <p class="sub">Radio online gratis · emisoras chilenas al instante</p>
-    <div class="searchRow">
-      <div class="searchBox">
-        <span>🔍</span>
-        <input id="search" placeholder="Buscar emisora (ej: Bío-Bío, Los 40, deportes...)" />
-      </div>
-      <button id="filterBtn" class="filterBtn active">📍 RM</button>
+    <p class="sub">Emisoras chilenas precargadas — sin depender de conexión a un directorio externo. Toca ▶ para reproducir directo, o "web oficial" si prefieres escucharla en el sitio de la radio.</p>
+    <div class="searchBox">
+      <span>🔍</span>
+      <input id="search" placeholder="Buscar emisora (ej: Bío-Bío, Cooperativa, Duna...)" />
     </div>
   </div>
 </header>
 
 <main>
-  <div id="content">
-    <div class="stateMsg"><span class="spin">⟳</span><br/><br/>Sintonizando emisoras…</div>
-  </div>
+  <div id="content"></div>
 </main>
 
 <div id="player">
@@ -126,21 +122,28 @@
 <audio id="audio"></audio>
 
 <script>
-const FEATURED = [
-  "Radio Bío-Bío", "Cooperativa", "ADN Radio", "Radio Agricultura", "Radio Concierto",
-  "Radio Futuro", "Radioactiva", "Los 40 Chile", "Radio Pudahuel", "Corazón FM",
-  "Radio Carolina", "Radio Imagina", "FMDOS", "Rock & Pop", "Tele13 Radio", "Radio Duna"
-];
-const API_HOSTS = [
-  "https://de1.api.radio-browser.info",
-  "https://fr1.api.radio-browser.info",
-  "https://at1.api.radio-browser.info"
+// Emisoras precargadas — no requieren conexión a ningún directorio externo.
+// "stream": URL de audio directo (mp3/icecast) verificada. Si no hay, se ofrece solo el sitio oficial.
+const STATIONS = [
+  { name: "Radio Bío-Bío", tags: "noticias · nacional", stream: "https://redirector.dps.live/biobiosantiago/mp3/icecast.audio", site: "https://www.biobiochile.cl" },
+  { name: "Cooperativa", tags: "noticias · actualidad", stream: null, site: "https://www.cooperativa.cl" },
+  { name: "ADN Radio", tags: "noticias · deportes", stream: null, site: "https://www.adnradio.cl" },
+  { name: "Radio Agricultura", tags: "noticias · opinión", stream: null, site: "https://www.radioagricultura.cl" },
+  { name: "Radio Concierto", tags: "rock · pop · 88.5 FM", stream: null, site: "https://www.concierto.cl" },
+  { name: "Radio Futuro", tags: "alternativa · indie", stream: null, site: "https://www.futuro.cl" },
+  { name: "Radioactiva", tags: "urbano · reggaetón", stream: null, site: "https://www.activa.cl" },
+  { name: "Los 40 Chile", tags: "pop · hits", stream: null, site: "https://los40.cl" },
+  { name: "Radio Pudahuel", tags: "romántica · baladas", stream: null, site: "https://www.pudahuel.cl" },
+  { name: "Corazón FM", tags: "romántica · pop", stream: null, site: "https://www.corazon.cl" },
+  { name: "Radio Carolina", tags: "juvenil · hits", stream: null, site: "https://www.carolina.cl" },
+  { name: "Radio Duna", tags: "pop rock · variada", stream: null, site: "https://www.duna.cl" },
+  { name: "Rock & Pop", tags: "rock · clásicos", stream: null, site: "https://www.rockandpop.cl" },
+  { name: "Radio Imagina", tags: "pop · romántica", stream: null, site: "https://www.imagina.cl" },
+  { name: "Tele13 Radio", tags: "noticias · análisis", stream: null, site: "https://www.t13.cl/radio" },
+  { name: "Radio Carabineros", tags: "institucional · noticias", stream: null, site: "https://www.carabineros.cl/radio/" },
 ];
 
-let stations = [];
-let status = "loading";
 let query = "";
-let onlySantiago = true;
 let current = null;
 let playing = false;
 let loadingStream = false;
@@ -155,90 +158,52 @@ const pStatus = document.getElementById('pStatus');
 const volume = document.getElementById('volume');
 const volIcon = document.getElementById('volIcon');
 const searchInput = document.getElementById('search');
-const filterBtn = document.getElementById('filterBtn');
 
 function normalize(s) {
   return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-async function loadStations() {
-  for (const host of API_HOSTS) {
-    try {
-      const res = await fetch(`${host}/json/stations/search?country=Chile&limit=300&hidebroken=true&order=clickcount&reverse=true`);
-      if (!res.ok) continue;
-      const data = await res.json();
-      stations = data
-        .filter(s => s.url_resolved || s.url)
-        .map(s => ({
-          id: s.stationuuid,
-          name: (s.name || "Sin nombre").trim(),
-          url: s.url_resolved || s.url,
-          tags: s.tags,
-          state: s.state,
-          bitrate: s.bitrate,
-          votes: s.votes
-        }));
-      status = "ok";
-      render();
-      return;
-    } catch (e) { continue; }
-  }
-  status = "error";
-  render();
-}
-
 function getFiltered() {
-  let list = stations;
-  if (onlySantiago) {
-    list = list.filter(s => {
-      const hay = normalize(`${s.name} ${s.state || ""} ${s.tags || ""}`);
-      return hay.includes("santiago") || hay.includes("metropolitana") ||
-        FEATURED.some(f => normalize(s.name).includes(normalize(f)));
-    });
-  }
-  if (query.trim()) {
-    const q = normalize(query);
-    list = list.filter(s => normalize(`${s.name} ${s.tags || ""}`).includes(q));
-  }
-  return [...list].sort((a, b) => {
-    const af = FEATURED.some(f => normalize(a.name).includes(normalize(f))) ? 1 : 0;
-    const bf = FEATURED.some(f => normalize(b.name).includes(normalize(f))) ? 1 : 0;
-    if (af !== bf) return bf - af;
-    return (b.votes || 0) - (a.votes || 0);
-  });
+  if (!query.trim()) return STATIONS;
+  const q = normalize(query);
+  return STATIONS.filter(s => normalize(`${s.name} ${s.tags}`).includes(q));
 }
 
 function render() {
-  if (status === "loading") {
-    content.innerHTML = `<div class="stateMsg"><span class="spin">⟳</span><br/><br/>Sintonizando emisoras…</div>`;
-    return;
-  }
-  if (status === "error") {
-    content.innerHTML = `<div class="stateMsg">⚠️<br/><br/>No se pudo conectar al directorio de radios.<br/>Revisa tu conexión e intenta recargar.</div>`;
-    return;
-  }
   const filtered = getFiltered();
   if (filtered.length === 0) {
-    content.innerHTML = `<div class="stateMsg">Sin resultados. Prueba con otro nombre o quita el filtro "RM".</div>`;
+    content.innerHTML = `<div class="stateMsg">Sin resultados para "${query}".</div>`;
     return;
   }
   const ul = document.createElement('ul');
   filtered.forEach(s => {
-    const isCurrent = current && current.id === s.id;
+    const isCurrent = current && current.name === s.name;
     const li = document.createElement('li');
-    const btn = document.createElement('button');
-    btn.className = 'stationBtn' + (isCurrent ? ' current' : '');
-    const iconText = isCurrent && playing ? (loadingStream ? '<span class="spin">⟳</span>' : '⏸') : '▶';
-    btn.innerHTML = `
-      <div class="icon${isCurrent ? ' current' : ''}">${iconText}</div>
-      <div class="info">
-        <p class="name">${s.name}</p>
-        <p class="tags">${(s.tags ? s.tags.split(',').slice(0,3).join(' · ') : 'radio online')}${s.bitrate ? ' · ' + s.bitrate + 'kbps' : ''}</p>
+    const card = document.createElement('div');
+    card.className = 'card' + (isCurrent ? ' current' : '');
+
+    const iconContent = isCurrent && playing
+      ? (loadingStream ? '<span class="spin">⟳</span>' : '⏸')
+      : '▶';
+
+    card.innerHTML = `
+      <div class="row">
+        <button class="icon${isCurrent ? ' current' : ''}" data-name="${s.name}" ${!s.stream ? 'style="opacity:0.35;cursor:default;"' : ''}>${iconContent}</button>
+        <div class="info">
+          <p class="name">${s.name}</p>
+          <p class="tags">${s.tags}</p>
+        </div>
+        <span class="badge ${s.stream ? 'direct' : 'web'}">${s.stream ? 'directo' : 'sin directo'}</span>
+        <a class="siteLink" href="${s.site}" target="_blank" rel="noopener">web oficial ↗</a>
       </div>
-      ${isCurrent ? `<span class="badge">${playing ? 'al aire' : 'pausa'}</span>` : ''}
+      ${isCurrent && streamError ? '<p class="errMsg">No se pudo reproducir directo. Usa "web oficial" para escucharla.</p>' : ''}
     `;
-    btn.onclick = () => play(s);
-    li.appendChild(btn);
+
+    if (s.stream) {
+      card.querySelector('.icon').onclick = () => play(s);
+    }
+
+    li.appendChild(card);
     ul.appendChild(li);
   });
   content.innerHTML = '';
@@ -247,14 +212,14 @@ function render() {
 
 function play(station) {
   streamError = false;
-  if (current && current.id === station.id) {
+  if (current && current.name === station.name) {
     togglePlay();
     return;
   }
   current = station;
   loadingStream = true;
   playing = true;
-  audio.src = station.url;
+  audio.src = station.stream;
   audio.play().then(() => {
     loadingStream = false;
     render();
@@ -293,11 +258,6 @@ function renderPlayer() {
 
 playBtn.onclick = togglePlay;
 searchInput.oninput = (e) => { query = e.target.value; render(); };
-filterBtn.onclick = () => {
-  onlySantiago = !onlySantiago;
-  filterBtn.classList.toggle('active', onlySantiago);
-  render();
-};
 volume.oninput = (e) => {
   audio.volume = parseFloat(e.target.value);
   volIcon.textContent = audio.volume === 0 ? '🔇' : '🔊';
@@ -307,7 +267,7 @@ audio.onwaiting = () => { loadingStream = true; renderPlayer(); };
 audio.onplaying = () => { loadingStream = false; renderPlayer(); };
 audio.onerror = () => { streamError = true; loadingStream = false; playing = false; render(); renderPlayer(); };
 
-loadStations();
+render();
 </script>
 </body>
 </html>
